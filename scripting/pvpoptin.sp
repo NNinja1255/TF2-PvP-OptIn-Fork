@@ -24,7 +24,7 @@
 //#tryinclude <piggyback>
 #define REQUIRE_PLUGIN
 
-#define PLUGIN_VERSION "24w17a"
+#define PLUGIN_VERSION "23w12a"
 #pragma newdecls required
 #pragma semicolon 1
 
@@ -44,8 +44,8 @@ public Plugin myinfo = {
 
 // ----- setting type defines here, you can probably change the values -----
 
-#define PvP_DISENGAGE_COOLDOWN 30.0
-#define PvP_PAIRREQUEST_COOLDOWN 15.0
+#define PvP_DISENGAGE_COOLDOWN 10.0
+#define PvP_PAIRREQUEST_COOLDOWN 5.0
 #define PvP_PAIRVOTE_DISPLAYTIME 10
 
 #define PVP_HEALBLOCK_BOLT "weapons/medi_shield_burn_01.wav"
@@ -89,6 +89,8 @@ bool clientInvalidHealNotif[MAXPLAYERS+1];
 float clientInvalidHealNotifLast[MAXPLAYERS+1];
 bool clientCustomModelPostRequested[MAXPLAYERS+1]; //to check if a client has already changed model this frame so we don't duplicate checks
 int togglePvPAction; //what to do when a player toggles global pvp, see TGACT_*
+
+static Handle g_hInfoTimerAnnounce = INVALID_HANDLE;
 
 #define TGACT_IN_RESPAWN 1
 #define TGACT_IN_KILL 2
@@ -135,8 +137,8 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_rejectpvp", Command_StopPvP, "Decline pair PvP requests, end all pair PvP or toggle pair PvP ignore state if you're not in pair PvP");
 	RegConsoleCmd("sm_declinepvp", Command_StopPvP, "Decline pair PvP requests, end all pair PvP or toggle pair PvP ignore state if you're not in pair PvP");
 	RegConsoleCmd("sm_mirrorme", Command_MirrorMe, "Turn on mirror damage for attacking non-PvP players");
-	RegAdminCmd("sm_forcepvp", Command_ForcePvP, ADMFLAG_SLAY, "Usage: <target|'map'> <1/0> - Force the targets into global PvP; 'map' applies to players that will join as well; Resets on map change");
-	RegAdminCmd("sm_mirror", Command_Mirror, ADMFLAG_SLAY, "Usage: <target> <1/0> - Force mirror with non-PvP players for the target");
+	RegAdminCmd("sm_forcepvp", Command_ForcePvP, ADMFLAG_SLAY, "Usage: <target|'map'> <-1/0/1/2> - Force the targets into global PvP; 'map' applies to players that will join as well; Resets on map change");
+	RegAdminCmd("sm_mirror", Command_Mirror, ADMFLAG_SLAY, "Usage: <target> <0/1> - Force mirror with non-PvP players for the target");
 	RegAdminCmd("sm_fakepvprequest", Command_ForceRequest, ADMFLAG_CHEATS, "Usage: <requester|userid> <requestee|userid> - Force request pvp from another users perspective");
 	RegAdminCmd("sm_banpvp", Command_BanPvP, ADMFLAG_BAN, "Usage: <name|userid> [<minutes> [reason]] - Ban a player from taking part in pvp");
 	RegAdminCmd("sm_unbanpvp", Command_UnbanPvP, ADMFLAG_UNBAN, "Usage: <name|userid> - Unban a player from pvp");
@@ -160,7 +162,7 @@ public void OnPluginStart() {
 	HookEvent("teamplay_game_over", OnRoundStateChange);
 	HookEvent("teamplay_round_win", OnRoundStateChange);
 	HookEvent("teamplay_round_stalemate", OnRoundStateChange);
-
+	
 	Plugin_SetupConvars();
 
 	Plugin_SetupForwards();
@@ -182,12 +184,18 @@ public void OnPluginStart() {
 		}
 	}
 	if (hotload) RequestFrame(HotloadGameState);
+	
+	
+}
+
+public void OnConfigsExecuted()
+{
+	g_hInfoTimerAnnounce = CreateTimer(300.0, Timer_Notification, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public void OnAllPluginsLoaded() {
 	depNativeVotes = LibraryExists("nativevotes");
 	depMirrorDamage = LibraryExists("mirrordamage") && FindPluginByName("Mirror Damage", "Forth")!=INVALID_HANDLE;
-	//depPiggyback = LibraryExists("piggyback");
 }
 
 public void OnPluginEnd() {
@@ -197,22 +205,24 @@ public void OnPluginEnd() {
 			ParticleEffectStop(client);
 		}
 	}
+	
+	//ClearTimer(g_hInfoTimerAnnounce);
 }
 
 public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "nativevotes")) depNativeVotes = true;
 	if (StrEqual(name, "mirrordamage") && FindPluginByName("Mirror Damage", "Forth")!=INVALID_HANDLE) depMirrorDamage = true;
-	//if (StrEqual(name, "piggyback")) depPiggyback = true;
 }
 
 public void OnLibraryRemoved(const char[] name) {
 	if (StrEqual(name, "nativevotes")) depNativeVotes = false;
 	if (StrEqual(name, "mirrordamage")) depMirrorDamage = false;
-	//if (StrEqual(name, "piggyback")) depPiggyback = false;
 }
 
 public void OnMapEnd() {
 	globalPvP[0] = State_Disabled;
+	
+	//ClearTimer(g_hInfoTimerAnnounce);
 }
 
 public void OnMapStart() {
@@ -271,6 +281,7 @@ void UpdateActiveState(eGameState gameState) {
 	if (isActive != wasActive) {
 		if (isActive) {
 			CPrintToChatAll("%t", "Plugin now active");
+			CPrintToChatAll("%t", "This is how to toggle global pvp");
 			DHooksAttach();
 		} else {
 			CPrintToChatAll("%t", "Plugin now inactive");
@@ -328,7 +339,9 @@ public void OnClientCookiesCached(int client) {
 	char buffer[128];
 	Cookie cookie;
 	if (joinForceState!=0) {
-		SetGlobalPvP(client, joinForceState<0);
+		if (joinForceState<0) globalPvP[client] |= State_Enabled;
+		else globalPvP[client] &=~ State_Enabled;
+		UpdateEntityFlagsGlobalPvP(client, IsGlobalPvP(client));
 	} else if((cookie = Cookie.Find(COOKIE_GLOBALPVP)) != null && GetClientCookie(client, cookie, buffer, sizeof(buffer)) && !StrEqual(buffer, "")) {
 		bool pvp = view_as<bool>(StringToInt(buffer));
 		if (pvp) globalPvP[client] |= State_Enabled;
@@ -622,23 +635,30 @@ public Action Command_ForcePvP(int client, int args) {
 	if (GetCmdArgs()!=2) {
 		char name[16];
 		GetCmdArg(0, name, sizeof(name));
-		ReplyToCommand(client, "Usage: %s <target|'map'> <1/0>", name);
+		ReplyToCommand(client, "Usage: %s <target|'map'> <-1/0/1/2>", name);
 	} else {
 		char pattern[MAX_NAME_LENGTH+1], tname[MAX_NAME_LENGTH+1];
 		GetCmdArg(2,pattern, sizeof(pattern));
-		bool pvpon = StringToInt(pattern) != 0;
+		bool pvplock = StringToInt(pattern) == 1;
+		bool pvpon = StringToInt(pattern) == 2;
+		bool pvpoff = StringToInt(pattern) == -1;
 		GetCmdArg(1,pattern, sizeof(pattern));
 		if (StrEqual(pattern, "map", false)) {
-			if (pvpon) globalPvP[0] |= State_Forced;
+			if (pvplock) globalPvP[0] |= State_Forced;
 			else globalPvP[0] &=~ State_Forced;
-			for (int i=1;i<=MaxClients;i++) {
+			// I have no idea why you would want to turn off someone's forced state if you just turn off map forced pvp.
+			// Use @all instead for that function instead of map.
+			/*for (int i=1;i<=MaxClients;i++) {
 				if (!IsClientInGame(i) || IsFakeClient(i)) continue;
-				if (clientPvPBannedUntil[client] > GetTime()) continue; //is banned
-				if (!pvpon) globalPvP[i] &=~ State_Forced; //turn off previously individually set flags
+				if (clientPvPBannedUntil[i] > GetTime()) continue; //is banned
+				if (!pvplock) {
+					globalPvP[i] &=~ State_Forced; //turn off previously individually set flags
+					CPrintToChat(i, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is no longer being {valve}Forced{default}");
+				}
 				UpdateEntityFlagsGlobalPvP(i, IsGlobalPvP(i));
-			}
+			}*/
 			CSkipNextClient(client);
-			if (pvpon) {
+			if (pvplock) {
 				CPrintToChatAll("%t", "Someone forced map pvp", client);
 				CReplyToCommand(client, "%t", "You forced map pvp");
 			} else {
@@ -652,23 +672,43 @@ public Action Command_ForcePvP(int client, int args) {
 			if (matches < 1) {
 				ReplyToTargetError(client, matches);
 			} else {
+				bool wasSuccessful = false;
 				for (int i;i<matches;i++) {
 					int player = target[i];
 					if (!IsClientInGame(player)) continue;
-					if (clientPvPBannedUntil[client] > GetTime()) continue; //is banned
-					if (pvpon) {
+					if (clientPvPBannedUntil[player] > GetTime()) continue; //is banned
+					if (pvplock) {
 						globalPvP[player] |= State_Forced;
-						CPrintToChat(player, "%t","Someone forced your global pvp", client);
+						CPrintToChat(player, "%t","Someone locked on your global pvp", client);
+						CPrintToChat(player, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is now being {valve}Forced{default}");
+						if (!wasSuccessful) wasSuccessful = true;
+					} else if (pvpon) {
+						SetGlobalPvP(player, true);
+						CPrintToChat(player, "%t","Someone forced on your global pvp", client);
+						if (!wasSuccessful) wasSuccessful = true;
+					} else if (pvpoff) {
+						SetGlobalPvP(player, false);
+						CPrintToChat(player, "%t","Someone forced off your global pvp", client);
+						if (!wasSuccessful) wasSuccessful = true;
 					} else {
 						globalPvP[player] &=~ State_Forced;
 						CPrintToChat(player, "%t","Someone reset your global pvp", client);
+						CPrintToChat(player, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is no longer being {valve}Forced{default}");
+						if (!wasSuccessful) wasSuccessful = true;
 					}
 					UpdateEntityFlagsGlobalPvP(player, IsGlobalPvP(player));
 				}
-				if (pvpon) {
-					CReplyToCommand(client, "%t", "You forced someones global pvp", tname);
-				} else {
-					CReplyToCommand(client, "%t", "You reset someones global pvp", tname);
+				
+				if (wasSuccessful) {
+					if (pvplock) {
+						CReplyToCommand(client, "%t", "You locked on someones global pvp", tname);
+					} else if (pvpon) {
+						CReplyToCommand(client, "%t", "You forced on someones global pvp", tname);
+					} else if (pvpoff) {
+						CReplyToCommand(client, "%t", "You forced off someones global pvp", tname);
+					} else {
+						CReplyToCommand(client, "%t", "You reset someones global pvp", tname);
+					}
 				}
 			}
 		}
@@ -683,7 +723,7 @@ public Action Command_Mirror(int client, int args) {
 	if (GetCmdArgs()!=2) {
 		char name[16];
 		GetCmdArg(0, name, sizeof(name));
-		ReplyToCommand(client, "Usage: %s <target> <1/0>", name);
+		ReplyToCommand(client, "Usage: %s <target> <0/1>", name);
 	} else {
 		char pattern[MAX_NAME_LENGTH+1], tname[MAX_NAME_LENGTH+1];
 		GetCmdArg(2,pattern, sizeof(pattern));
@@ -756,7 +796,6 @@ public Action Command_BlockedInPvP(int client, const char[] command, int argc) {
 	}
 	return Plugin_Continue;
 }
-
 
 static void RequestPairPvP(int requester, int requestee, bool antiSpam=false) {
 	float tmp;
@@ -916,14 +955,14 @@ public int PairPvPSourcemodVote(Menu menu, MenuAction action, int param1, int pa
 	} else if (action == MenuAction_Select) {
 		char buffer[4];
 		menu.GetItem(param2, buffer, sizeof(buffer));
-		if (StrEqual(buffer,"0")) selection = 0;
+		if (strcmp(buffer,"0") == 0) selection = 0;
 		else selection = 1;
 	} else if (action == MenuAction_Cancel) {
 		selection=-1;
 	}
 	any vdata[3];
 	if (at >= 0) pairPvPVoteData.GetArray(at, vdata);
-	if (!selection) {
+	if (selection == 0) {
 		RequestPairPvP(vdata[2], vdata[1]); //request reverse to confirm
 	} else {
 		DeclinePairPvP(vdata[2]);
@@ -935,7 +974,7 @@ public int PairPvPSourcemodVote(Menu menu, MenuAction action, int param1, int pa
 //region utilities to set and check pvp flags
 void PrintGlobalPvpState(int client) {
 	if (!IsClientInGame(client) || IsFakeClient(client) || GetClientTime(client)<2.0) return;
-	if (IsGlobalPvP(client)) {
+	if (globalPvP[client]&State_Enabled) { // IsGlobalPvP(client) <-- This does not show the player's personal settings. If PvP is being forced, it should say so instead of just saying it is on.
 		CPrintToChat(client, "%t", "Global pvp state on line1");
 		CPrintToChat(client, "%t", "Global pvp state on line2");
 	} else {
@@ -943,6 +982,9 @@ void PrintGlobalPvpState(int client) {
 		CPrintToChat(client, "%t", "Global pvp state off line2");
 	}
 	CPrintToChat(client, "%t", "Hey there's also pair pvp");
+	if (globalPvP[client]&State_Forced) {
+		CPrintToChat(client, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is currently being {valve}Forced{default}");
+	}
 }
 //return false if cancelled
 bool SetGlobalPvP(int client, bool pvp, bool checkCooldown=false) {
@@ -959,7 +1001,7 @@ bool SetGlobalPvP(int client, bool pvp, bool checkCooldown=false) {
 		}
 #endif
 	}
-
+	
 	bool enterPvP = pvp && !(globalPvP[client]&State_Enabled);
 	if (checkCooldown) {
 		//timeLeft = cooldown - time spent in pvp
@@ -970,17 +1012,19 @@ bool SetGlobalPvP(int client, bool pvp, bool checkCooldown=false) {
 		}
 		if (enterPvP) clientLatestPvPAction[client] = GetClientTime(client);
 	}
-
+	
 	Cookie cookie;
-	eEnabledState newState;
+	eEnabledState newState = globalPvP[client]; // Set newState to what globalPvP[client] is before changing globalPvP[client], as to not accidentally override the forced state.
 	if (pvp) newState |= State_Enabled;
 	else newState &=~ State_Enabled;
 
-	if (Notify_OnGlobalChanged(client, newState) && newState != globalPvP[client]) {
-		globalPvP[client] = newState;
+	if (Notify_OnGlobalChanged(client, newState) && (newState&State_Enabled) != (globalPvP[client]&State_Enabled)) {
+		globalPvP[client] = newState; // Unless newState is being set to what globalPvP[client] was before being changed, this will override the forced pvp state.
+									  // This means the normal pvp toggle command that all players can use can bypass the forced state. I assume this is unintended behavior.
+									  // Please be more careful for oversights like this in the future.
 		pvp = (newState & State_Enabled) == State_Enabled;
 	} else return false; //nothing changed, what do you want? :D
-
+	
 	//potential punishment for toggling
 	if (pvp) {
 		if ((togglePvPAction & TGACT_IN_KILL)!=0) ForcePlayerSuicide(client);
@@ -1254,7 +1298,7 @@ public Action OnClientTakeDamage(int victim, int &attacker, int &inflictor, floa
 			damage = GetClientHealth(source) * 6.0;
 		SDKHooks_TakeDamage(source, inflictor, source, damage, damagetype, weapon, damageForce, damagePosition);
 		//damage was mirrored
-	} else if (allowTauntKilled[victim] && TF2_IsPlayerInCondition(source, TFCond_Taunting) && isTauntDamage(damagecustom)) {
+	} else if (allowTauntKilled[victim] && TF2_IsPlayerInCondition(source, TFCond_Taunting)) {
 		return Plugin_Continue; //allow taunt-kill explicitly
 	} else if ((pvpGrant=CanClientsPvP(victim,source))) {
 		//don't update cooldowns if we're forced into pvp or damage is self-inflicted
@@ -1357,6 +1401,29 @@ void UpdateEntityFlagsGlobalPvP(int client, bool pvp) {
 	if (usePlayerStateColors)
 		SetPlayerColor(client, playerStateColors[ci][0], playerStateColors[ci][1], playerStateColors[ci][2], playerStateColors[ci][3]);
 	if (usePvPParticle) UpdatePvPParticles(client);
+}
+
+static Action Timer_Notification(Handle timer)
+{
+	if (cvar_Info.BoolValue)
+	{
+		CPrintToChatAll("%t", "PvP Command Reminder");
+	}
+
+	return Plugin_Continue;
+}
+
+stock void ClearTimer(Handle &hTimer)
+{
+	if (hTimer != INVALID_HANDLE)
+	{
+		KillTimer(hTimer);
+		hTimer = INVALID_HANDLE;
+		
+		#if defined DEBUG
+		PrintToChatAll("Timer cleared!");
+		#endif
+	}
 }
 
 //endregion

@@ -88,7 +88,6 @@ enum eTFDmgCustom {
 	TF_DMG_CUSTOM_END // END
 }
 
-
 // will be double checked with TF2Util_GetPlayerConditionProvider
 TFCond pvpConditions[] = {
 	TFCond_Slowed,

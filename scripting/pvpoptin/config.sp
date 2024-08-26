@@ -26,6 +26,8 @@ static ConVar cvar_PlayersVersusBosses;
 static ConVar cvar_SpawnKillProperties;
 static ConVar cvar_ToggleAction;
 
+ConVar cvar_Info;
+
 static void hookAndLoadCvar(ConVar cvar, ConVarChanged handler) {
 	char def[20], val[20];
 	cvar.GetDefault(def, sizeof(def));
@@ -56,6 +58,7 @@ void Plugin_SetupConvars() {
 	cvar_UsePvPParticle = CreateConVar( "pvp_playerparticle_enable", "1", "Play a particle on players that can be PvPed. Playes for both global and pair PvP", _, true, 0.0, true, 1.0);
 	cvar_SpawnKillProperties = CreateConVar( "pvp_spawnkill_protection", "15 5 35 100 60", "Four parameters to configure spawn protection. min penalty, protection time, max penalty, threashold, timeout. Empty to disable, invalid values will use default.");
 	cvar_ToggleAction = CreateConVar( "pvp_toggle_action", "0", "Flags for what to do when global pvp is toggled (set to sum): 1 - Respawn when entering, 2 - Kill when entering, 4 - Respawn when leaving, 8 - Kill when leaving", _, true, 0.0, true, 16.0);
+	cvar_Info = CreateConVar("pvp_info", "1", "Enable/Disable PvP Reminder", _, true, 0.0, true, 1.0);
 	//create fancy plugin config - should be sourcemod/pvpoptin.cfg
 	AutoExecConfig();
 	//hook cvars and load current values
@@ -288,5 +291,6 @@ public void OnCVarChanged_SpawnKillProperties(ConVar convar, const char[] oldVal
 public void OnCVarChanged_ToggleAction(ConVar convar, const char[] oldValue, const char[] newValue) {
 	togglePvPAction = (convar.IntValue & 0x0F);
 }
+
 
 //enregion

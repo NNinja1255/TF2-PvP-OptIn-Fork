@@ -154,7 +154,7 @@
 	}
 	"Hey there's also pair pvp"
 	{
-		"en"	"{darkviolet}[PvP]{default} You can request {azure}Pair PvP{default} with {darkgray}/pvp player{default}."
+		"en"	"{darkviolet}[PvP]{default} You can request {azure}Pair PvP{default} with {darkgray}/pvp <name>{default}."
 	}
 	"You are ignoring pair pvp"
 	{
@@ -208,21 +208,41 @@
 	"Someone reset map pvp"
 	{
 		"#format" "{1:N}"
-		"en"	"{darkviolet}[PvP]{default} {1} has reset {goldenrod}Global PvP{default} back to personal settings"
+		"en"	"{darkviolet}[PvP]{default} {1} has reset the map's {goldenrod}Global PvP{default} back to personal settings"
 	}
 	"You reset map pvp"
 	{
-		"en"	"{darkviolet}[PvP]{default} You've reset {goldenrod}Global PvP{default} for everyone"
+		"en"	"{darkviolet}[PvP]{default} You've reset {goldenrod}Global PvP{default} for the map"
 	}
-	"Someone forced your global pvp"
+	"Someone forced on your global pvp"
+	{
+		"#format" "{1:N}"
+		"en"	"{darkviolet}[PvP]{default} {1} forced on your {goldenrod}Global PvP{default} personal settings"
+	}
+	"Someone forced off your global pvp"
+	{
+		"#format" "{1:N}"
+		"en"	"{darkviolet}[PvP]{default} {1} forced off your {goldenrod}Global PvP{default} personal settings"
+	}
+	"Someone locked on your global pvp"
 	{
 		"#format" "{1:N}"
 		"en"	"{darkviolet}[PvP]{default} {1} forced you into {goldenrod}Global PvP{default}"
 	}
-	"You forced someones global pvp"
+	"You forced on someones global pvp"
 	{
 		"#format" "{1:s}"
-		"en"	"{darkviolet}[PvP]{default} You forced {1} to {goldenrod}Global PvP{default}"
+		"en"	"{darkviolet}[PvP]{default} You forced on {1}'s {goldenrod}Global PvP{default} personal settings"
+	}
+	"You forced off someones global pvp"
+	{
+		"#format" "{1:s}"
+		"en"	"{darkviolet}[PvP]{default} You forced off {1}'s {goldenrod}Global PvP{default} personal settings"
+	}
+	"You locked on someones global pvp"
+	{
+		"#format" "{1:s}"
+		"en"	"{darkviolet}[PvP]{default} You forced {1} into {goldenrod}Global PvP{default}"
 	}
 	"Someone reset your global pvp"
 	{
@@ -269,5 +289,13 @@
 	"Can not use this command in pvp"
 	{
 		"en"	"{darkviolet}[PvP]{default} You {crimson}can not{default} use this command while in PvP"
+	}
+	"This is how to toggle global pvp"
+	{
+		"en"	"{darkviolet}[PvP]{default} You can toggle {goldenrod}Global PvP{default} with {darkgray}/pvp{default}."
+	}
+	"PvP Command Reminder"
+	{
+		"en"	"{darkviolet}[PvP]{default} Remember, you can toggle {goldenrod}Global PvP{default} at any time with {darkgray}/pvp{default}."
 	}
 }
