@@ -196,6 +196,7 @@ public void OnConfigsExecuted()
 public void OnAllPluginsLoaded() {
 	depNativeVotes = LibraryExists("nativevotes");
 	depMirrorDamage = LibraryExists("mirrordamage") && FindPluginByName("Mirror Damage", "Forth")!=INVALID_HANDLE;
+	//depPiggyback = LibraryExists("piggyback");
 }
 
 public void OnPluginEnd() {
@@ -212,11 +213,13 @@ public void OnPluginEnd() {
 public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "nativevotes")) depNativeVotes = true;
 	if (StrEqual(name, "mirrordamage") && FindPluginByName("Mirror Damage", "Forth")!=INVALID_HANDLE) depMirrorDamage = true;
+	//if (StrEqual(name, "piggyback")) depPiggyback = true;
 }
 
 public void OnLibraryRemoved(const char[] name) {
 	if (StrEqual(name, "nativevotes")) depNativeVotes = false;
 	if (StrEqual(name, "mirrordamage")) depMirrorDamage = false;
+	//if (StrEqual(name, "piggyback")) depPiggyback = false;
 }
 
 public void OnMapEnd() {
