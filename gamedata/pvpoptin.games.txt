@@ -216,7 +216,9 @@
 			// Hook monoculus searching players
 			"CEyeballBoss::IsLineOfSightClear()" {
 				"offset" "CEyeballBoss::IsLineOfSightClear()"
+				"callconv" "thiscall"
 				"return" "bool"
+				"this" "entity"
 				"arguments"
 				{
 					"target"
