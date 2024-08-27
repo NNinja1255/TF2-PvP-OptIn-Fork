@@ -288,6 +288,7 @@ void OnClientModelChanged(int userid) {
 
 //keep as simple and quick as possible
 //don't check result, that does NOT pass the previous result!
+/*
 public bool OnClientShouldCollide(int entity, int collisiongroup, int contentsmask, bool originalResult) {
 	if (!IsClientInGame(entity)) return originalResult;
 	// collision group 8 == player movement
@@ -295,6 +296,7 @@ public bool OnClientShouldCollide(int entity, int collisiongroup, int contentsma
 	if (collisiongroup == 8 && (contentsmask & 0xFFFFE7FF) == 0x201400B && noCollideState >= 1) return false;
 	return originalResult;
 }
+*/
 
 public Action CH_PassFilter(int ent1, int ent2, bool &result) {
 	if (!isActive || !noCollideState || !(1<=ent1<=MaxClients) || !(1<=ent2<=MaxClients))
