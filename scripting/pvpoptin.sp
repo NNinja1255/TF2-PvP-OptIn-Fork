@@ -1221,7 +1221,7 @@ static void SDKHookClient(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnClientTakeDamage);
 	SDKHook(client, SDKHook_OnTakeDamagePost, OnClientTakeDamagePost);
 	SDKHook(client, SDKHook_SpawnPost, OnClientSpawnPost);
-	//SDKHook(client, SDKHook_ShouldCollide, OnClientShouldCollide);
+	SDKHook(client, SDKHook_ShouldCollide, OnClientShouldCollide);
 }
 
 public Action OnZombieTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom) {
