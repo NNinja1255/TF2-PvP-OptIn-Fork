@@ -185,7 +185,6 @@ public void OnPluginStart() {
 	}
 	if (hotload) RequestFrame(HotloadGameState);
 	
-	
 }
 
 public void OnConfigsExecuted()
@@ -206,8 +205,6 @@ public void OnPluginEnd() {
 			ParticleEffectStop(client);
 		}
 	}
-	
-	//ClearTimer(g_hInfoTimerAnnounce);
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -683,7 +680,7 @@ public Action Command_ForcePvP(int client, int args) {
 					if (pvplock) {
 						globalPvP[player] |= State_Forced;
 						CPrintToChat(player, "%t","Someone locked on your global pvp", client);
-						CPrintToChat(player, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is now being {valve}Forced{default}");
+						CPrintToChat(player, "%t", "Your PvP is now locked on");
 						if (!wasSuccessful) wasSuccessful = true;
 					} else if (pvpon) {
 						SetGlobalPvP(player, true);
@@ -696,7 +693,7 @@ public Action Command_ForcePvP(int client, int args) {
 					} else {
 						globalPvP[player] &=~ State_Forced;
 						CPrintToChat(player, "%t","Someone reset your global pvp", client);
-						CPrintToChat(player, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is no longer being {valve}Forced{default}");
+						CPrintToChat(player, "%","Your PvP is no longer locked on");
 						if (!wasSuccessful) wasSuccessful = true;
 					}
 					UpdateEntityFlagsGlobalPvP(player, IsGlobalPvP(player));
@@ -958,7 +955,7 @@ public int PairPvPSourcemodVote(Menu menu, MenuAction action, int param1, int pa
 	} else if (action == MenuAction_Select) {
 		char buffer[4];
 		menu.GetItem(param2, buffer, sizeof(buffer));
-		if (strcmp(buffer,"0") == 0) selection = 0;
+		if (StrEqual(buffer,"0")) selection = 0;
 		else selection = 1;
 	} else if (action == MenuAction_Cancel) {
 		selection=-1;
@@ -986,7 +983,7 @@ void PrintGlobalPvpState(int client) {
 	}
 	CPrintToChat(client, "%t", "Hey there's also pair pvp");
 	if (globalPvP[client]&State_Forced) {
-		CPrintToChat(client, "{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is currently being {valve}Forced{default}");
+		CPrintToChat(client, "%t", "Your PvP is still locked on");
 	}
 }
 //return false if cancelled
@@ -1027,7 +1024,7 @@ bool SetGlobalPvP(int client, bool pvp, bool checkCooldown=false) {
 									  // Please be more careful for oversights like this in the future.
 		pvp = (newState & State_Enabled) == State_Enabled;
 	} else return false; //nothing changed, what do you want? :D
-	
+
 	//potential punishment for toggling
 	if (pvp) {
 		if ((togglePvPAction & TGACT_IN_KILL)!=0) ForcePlayerSuicide(client);

@@ -298,4 +298,16 @@
 	{
 		"en"	"{darkviolet}[PvP]{default} Remember, you can toggle {goldenrod}Global PvP{default} at any time with {darkgray}/pvp{default}."
 	}
+	"Your PvP is now locked on"
+	{
+		"en"	"{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is now being {valve}Forced{default}"
+	}
+	"Your PvP is no longer locked on"
+	{
+		"en"	"{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is no longer being {valve}Forced{default}"
+	}
+	"Your PvP is still locked on"
+	{
+		"en"	"{darkviolet}[PvP]{default} Your {goldenrod}Global PvP{default} is currently being {valve}Forced{default}"
+	}
 }
