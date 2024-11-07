@@ -1298,7 +1298,7 @@ public Action OnClientTakeDamage(int victim, int &attacker, int &inflictor, floa
 			damage = GetClientHealth(source) * 6.0;
 		SDKHooks_TakeDamage(source, inflictor, source, damage, damagetype, weapon, damageForce, damagePosition);
 		//damage was mirrored
-	} else if (allowTauntKilled[victim] && TF2_IsPlayerInCondition(source, TFCond_Taunting)) {
+	} else if (allowTauntKilled[victim] && TF2_IsPlayerInCondition(source, TFCond_Taunting) && isTauntDamage(damagecustom)) {
 		return Plugin_Continue; //allow taunt-kill explicitly
 	} else if ((pvpGrant=CanClientsPvP(victim,source))) {
 		//don't update cooldowns if we're forced into pvp or damage is self-inflicted
