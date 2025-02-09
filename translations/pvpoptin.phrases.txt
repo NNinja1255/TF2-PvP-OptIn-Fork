@@ -66,7 +66,6 @@
 	}
 	"How to stop all pair pvp"
 	{
-		"#format" "{1:N}"
 		"en"	"{darkviolet}[PvP]{default} Use {darkgray}/stoppvp{default} to disengage from all {azure}Pair PvP{default}."
 	}
 	"You are both global pvp"
