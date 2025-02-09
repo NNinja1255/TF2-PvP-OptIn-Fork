@@ -64,6 +64,11 @@
 		"#format" "{1:N}"
 		"en"	"{darkviolet}[PvP]{default} You've entered PvP with {1}"
 	}
+	"How to stop all pair pvp"
+	{
+		"#format" "{1:N}"
+		"en"	"{darkviolet}[PvP]{default} Use {darkgray}/stoppvp{default} to disengage from all {azure}Pair PvP{default}."
+	}
 	"You are both global pvp"
 	{
 		"en"	"{darkviolet}[PvP]{default} You're currently both in {goldenrod}Global PvP{default}"

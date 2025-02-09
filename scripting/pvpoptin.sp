@@ -815,10 +815,12 @@ static void RequestPairPvP(int requester, int requestee, bool antiSpam=false) {
 	} else if (pairPvPrequest[requestee]==requester) { //response / accept
 		CPrintToChat(requestee, "%t", "You engaged pair pvp", requester);
 		CPrintToChat(requester, "%t", "You engaged pair pvp", requestee);
+		CPrintToChat(requestee, "%t", "How to stop all pair pvp");
+		CPrintToChat(requester, "%t", "How to stop all pair pvp");
 		pairPvPrequest[requester]=pairPvPrequest[requestee]=0;
 		SetPairPvP(requester,requestee,true);
-	} else if (IsGlobalPvP(requester) && IsGlobalPvP(requestee)) {
-		CPrintToChat(requester, "%t", "You are both global pvp");
+	/*} else if (IsGlobalPvP(requester) && IsGlobalPvP(requestee)) {
+		CPrintToChat(requester, "%t", "You are both global pvp");*/
 	} else if (pairPvPrequest[requester]==requestee) {
 		CPrintToChat(requester, "%t", "Already requested pvp with", requestee);
 	} else if (pairPvPRequestMenu && ArrayFind(requestee, pairPvPrequest, sizeof(pairPvPrequest))>0) {
