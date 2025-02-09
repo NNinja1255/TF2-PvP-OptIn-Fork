@@ -979,11 +979,12 @@ void PrintGlobalPvpState(int client) {
 	if (globalPvP[client]&State_Enabled) { // IsGlobalPvP(client) <-- This does not show the player's personal settings. If PvP is being forced, it should say so instead of just saying it is on.
 		CPrintToChat(client, "%t", "Global pvp state on line1");
 		CPrintToChat(client, "%t", "Global pvp state on line2");
+		CPrintToChat(client, "This is how to toggle global pvp");
 	} else {
 		CPrintToChat(client, "%t", "Global pvp state off line1");
 		CPrintToChat(client, "%t", "Global pvp state off line2");
+		CPrintToChat(client, "%t", "Hey there's also pair pvp");
 	}
-	CPrintToChat(client, "%t", "Hey there's also pair pvp");
 	if (globalPvP[client]&State_Forced) {
 		CPrintToChat(client, "%t", "Your PvP is still locked on");
 	}
