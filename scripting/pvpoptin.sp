@@ -777,6 +777,7 @@ public Action Command_StopPvP(int client, int args) {
 	}
 	if (primary) {
 		CPrintToChat(client, "%t", "Use command again to toggle ignore");
+		primary = false
 	} else {
 		SetPairPvPIgnored(client, !pairPvPignored[client]);
 	}
