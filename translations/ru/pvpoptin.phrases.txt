@@ -139,7 +139,7 @@
 	}
 	"Hey there's also pair pvp"
 	{
-		"ru"	"{darkviolet}[PvP]{default} Вы можете запросить {azure}парную битву{default}, с помощью {darkgray}/pvp *игрок*{default}."
+		"ru"	"{darkviolet}[PvP]{default} Вы можете запросить {azure}парную битву{default}, с помощью {darkgray}/pvpinvite{default}."
 	}
 	"You are ignoring pair pvp"
 	{

@@ -140,7 +140,7 @@
 	}
 	"Hey there's also pair pvp"
 	{
-		"chi"	"{darkviolet}[PvP]{default} 你可以使用 {darkgray}/pvp 玩家名字{default} 来请求{azure}对决PvP{default}。"
+		"chi"	"{darkviolet}[PvP]{default} 你可以使用 {darkgray}/pvpinvite{default} 来请求{azure}对决PvP{default}。"
 	}
 	"You are ignoring pair pvp"
 	{

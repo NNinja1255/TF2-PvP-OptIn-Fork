@@ -158,7 +158,7 @@
 	}
 	"Hey there's also pair pvp"
 	{
-		"en"	"{darkviolet}[PvP]{default} You can request {azure}Pair PvP{default} with {darkgray}/pvp <name>{default}."
+		"en"	"{darkviolet}[PvP]{default} You can request {azure}Pair PvP{default} with {darkgray}/pvpinvite{default}."
 	}
 	"You are ignoring pair pvp"
 	{
