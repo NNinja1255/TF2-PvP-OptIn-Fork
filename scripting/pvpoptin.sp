@@ -766,7 +766,7 @@ public Action Command_MirrorMe(int client, int args) {
 }
 
 public Action Command_StopPvP(int client, int args) {
-	bool primary;
+	bool primary = false;
 	if (ArrayFind(client, pairPvPrequest, sizeof(pairPvPrequest))) {
 		DeclinePairPvP(client);
 		primary = true;
@@ -777,7 +777,6 @@ public Action Command_StopPvP(int client, int args) {
 	}
 	if (primary) {
 		CPrintToChat(client, "%t", "Use command again to toggle ignore");
-		primary = false;
 	} else {
 		SetPairPvPIgnored(client, !pairPvPignored[client]);
 	}
