@@ -138,6 +138,7 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_declinepvp", Command_StopPvP, "Decline pair PvP requests, end all pair PvP or toggle pair PvP ignore state if you're not in pair PvP");
 	RegConsoleCmd("sm_mirrorme", Command_MirrorMe, "Turn on mirror damage for attacking non-PvP players");
 	RegAdminCmd("sm_forcepvp", Command_ForcePvP, ADMFLAG_SLAY, "Usage: <target|'map'> <-1/0/1/2> - Force the targets into global PvP; 'map' applies to players that will join as well; Resets on map change");
+	RegAdminCmd("sm_forcestoppvp", Command_ForceStopPvP, ADMFLAG_SLAY, "Usage: <target> [<target>] - Force the targets to disengage their pair pvp");
 	RegAdminCmd("sm_mirror", Command_Mirror, ADMFLAG_SLAY, "Usage: <target> <0/1> - Force mirror with non-PvP players for the target");
 	RegAdminCmd("sm_fakepvprequest", Command_ForceRequest, ADMFLAG_CHEATS, "Usage: <requester|userid> <requestee|userid> - Force request pvp from another users perspective");
 	RegAdminCmd("sm_banpvp", Command_BanPvP, ADMFLAG_BAN, "Usage: <name|userid> [<minutes> [reason]] - Ban a player from taking part in pvp");
@@ -709,6 +710,76 @@ public Action Command_ForcePvP(int client, int args) {
 					} else {
 						CReplyToCommand(client, "%t", "You reset someones global pvp", tname);
 					}
+				}
+			}
+		}
+	}
+	return Plugin_Handled;
+}
+
+public Action Command_ForceStopPvP(int client, int args) {
+	if (GetCmdArgs() < 1) {
+		char name[16];
+		GetCmdArg(0, name, sizeof(name));
+		ReplyToCommand(client, "Usage: %s <target> [<target>]", name);
+	} else {
+		char pattern[MAX_NAME_LENGTH+1], tname[MAX_NAME_LENGTH+1];
+		GetCmdArg(1,pattern, sizeof(pattern));
+		
+		int target[MAXPLAYERS];
+		bool tn_is_ml;
+		int matches = ProcessTargetString(pattern, client, target, MAXPLAYERS, COMMAND_FILTER_CONNECTED|COMMAND_FILTER_NO_BOTS|COMMAND_FILTER_NO_IMMUNITY, tname, sizeof(tname), tn_is_ml);
+		if (matches < 1) {
+			ReplyToTargetError(client, matches);
+		} else {
+			bool wasSuccessful = false;
+			for (int i;i<matches;i++) {
+				int player = target[i];
+				if (!IsClientInGame(player)) continue;
+				if (clientPvPBannedUntil[player] > GetTime()) continue; //is banned
+				
+				if (HasAnyPairPvP(player)) {
+					if (GetCmdArgs() < 2) {
+						for (int i2=1;i2<=MaxClients;i2++) {
+							if (i2 != player && pairPvP[player][i2] && IsClientInGame(i2)) {
+								CPrintToChat(i2, "%t", "Someone disengaged your pair pvp with", player);
+							}
+						}
+						
+						CPrintToChat(player, "%t", "Someone disengaged your pair pvp");
+						SetPairPvPClient(player, false);
+						
+						wasSuccessful = true;
+					} else {
+						char pattern2[MAX_NAME_LENGTH+1];
+						GetCmdArg(2,pattern2, sizeof(pattern2));
+
+						int player2 = FindTarget(client, pattern2);
+						
+						if (player2 == player) continue;
+						if (!IsClientInGame(player2)) continue;
+						if (!pairPvP[player][player2]) continue;
+						if (clientPvPBannedUntil[player2] > GetTime()) continue; //is banned
+						
+						CPrintToChat(player2, "%t", "Someone disengaged your pair pvp with", player);
+						CPrintToChat(player, "%t", "Someone disengaged your pair pvp with", player2);
+						SetPairPvP(player, player2, false);
+						
+						wasSuccessful = true;
+					}
+				}
+			}
+			
+			if (wasSuccessful) {
+				if (GetCmdArgs() < 2) {
+					CReplyToCommand(client, "%t", "You disengaged someones pair pvp", tname);
+				} else {
+					char pattern2[MAX_NAME_LENGTH+1];
+					GetCmdArg(2,pattern2, sizeof(pattern2));
+
+					int player2 = FindTarget(client, pattern2);
+					
+					CReplyToCommand(client, "%t", "You disengaged someones pair pvp with", tname, player2);
 				}
 			}
 		}

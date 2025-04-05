@@ -59,6 +59,25 @@
 	{
 		"en"	"{darkviolet}[PvP]{default} You disengaged from all {azure}Pair PvP{default}."
 	}
+	"You disengaged someones pair pvp"
+	{
+		"#format" "{1:s}"
+		"en"	"{darkviolet}[PvP]{default} You've disengaged all of {1}'s {azure}Pair PvP{default}."
+	}
+	"You disengaged someones pair pvp with"
+	{
+		"#format" "{1:s},{2:N}"
+		"en"	"{darkviolet}[PvP]{default} You've disengaged {1}'s {azure}Pair PvP{default} with {2}."
+	}
+	"Someone disengaged your pair pvp"
+	{
+		"en"	"{darkviolet}[PvP]{default} Someone disengaged all of your {azure}Pair PvP{default}."
+	}
+	"Someone disengaged your pair pvp with"
+	{
+		"#format" "{1:N}"
+		"en"	"{darkviolet}[PvP]{default} Someone disengaged your {azure}Pair PvP{default} with {2}."
+	}
 	"You engaged pair pvp"
 	{
 		"#format" "{1:N}"
