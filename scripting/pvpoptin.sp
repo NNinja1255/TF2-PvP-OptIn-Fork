@@ -742,11 +742,11 @@ public Action Command_ForceStopPvP(int client, int args) {
 					if (GetCmdArgs() < 2) {
 						for (int i2=1;i2<=MaxClients;i2++) {
 							if (i2 != player && pairPvP[player][i2] && IsClientInGame(i2)) {
-								CPrintToChat(i2, "%t", "Someone disengaged your pair pvp with", player);
+								CPrintToChat(i2, "%t", "Someone disengaged your pair pvp with", client, player);
 							}
 						}
 						
-						CPrintToChat(player, "%t", "Someone disengaged your pair pvp");
+						CPrintToChat(player, "%t", "Someone disengaged your pair pvp", client);
 						SetPairPvPClient(player, false);
 						
 						wasSuccessful = true;
@@ -762,8 +762,8 @@ public Action Command_ForceStopPvP(int client, int args) {
 						if (!pairPvP[player][player2]) continue;
 						if (clientPvPBannedUntil[player2] > GetTime()) continue; //is banned
 						
-						CPrintToChat(player2, "%t", "Someone disengaged your pair pvp with", player);
-						CPrintToChat(player, "%t", "Someone disengaged your pair pvp with", player2);
+						CPrintToChat(player2, "%t", "Someone disengaged your pair pvp with", client, player);
+						CPrintToChat(player, "%t", "Someone disengaged your pair pvp with", client, player2);
 						SetPairPvP(player, player2, false);
 						
 						wasSuccessful = true;
