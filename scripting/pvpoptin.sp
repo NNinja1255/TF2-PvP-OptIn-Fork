@@ -756,6 +756,7 @@ public Action Command_ForceStopPvP(int client, int args) {
 
 						int player2 = FindTarget(client, pattern2);
 						
+						if (player2 == -1) continue;
 						if (player2 == player) continue;
 						if (!IsClientInGame(player2)) continue;
 						if (!pairPvP[player][player2]) continue;
