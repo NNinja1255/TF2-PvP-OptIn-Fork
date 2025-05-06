@@ -29,6 +29,7 @@ public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max
     CreateNative("pvp_GetPlayerPair",   Native_GetPlayerPair);
     CreateNative("pvp_GetPlayersPaired",Native_GetPlayersPaired);
     CreateNative("pvp_ForcePlayerPair", Native_ForcePlayerPair);
+	CreateNative("pvp_GetMapGlobal",    Native_GetMapGlobal);
     CreateNative("pvp_CanAttack",       Native_CanAttack);
     CreateNative("pvp_IsMirrored",      Native_IsMirrored);
     CreateNative("pvp_SetMirrored",     Native_SetMirrored);
@@ -108,6 +109,11 @@ public any Native_ForcePlayerPair(Handle plugin, int numParams) {
 		SetPairPvP(client1,client2,force);
 	}
 	return 0;
+}
+//native bool pvp_GetMapGlobal(pvpEnabledState& pvpState = PVPState_Disabled);
+public any Native_GetMapGlobal(Handle plugin, int numParams) {
+	SetNativeCellRef(1, globalPvP[0]);
+	return IsGlobalPvP(0);
 }
 //native bool pvp_CanAttack(int client1, int client2);
 public any Native_CanAttack(Handle plugin, int numParams) {

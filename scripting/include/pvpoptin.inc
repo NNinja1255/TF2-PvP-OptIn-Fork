@@ -72,6 +72,15 @@ native int pvp_GetPlayersPaired(int client, int[] targets, int max_targets);
 native void pvp_ForcePlayerPair(int client1, int client2, bool value);
 
 /**
+ * Get the maps pvp state. The parameter will give more
+ * information about the effective pvp state returned.
+ *
+ * @param pvpState the current pvp state
+ * @return !(state & ExternalOff) && state != Disabled
+ */
+native bool pvp_GetMapGlobal(pvpEnabledState& pvpState = PVPState_Disabled);
+
+/**
  * Check if client1 and client2 can pvp each other.
  * Will first check if both player are in global pvp, then checks
  * if both players have started pair pvp.
